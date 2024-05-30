@@ -31,9 +31,10 @@ def prime_range(ste):
 p = [1 if is_prime(i) else 0 for i in range(1,1001) ]
 
 n = int(input("Count primes to: >"))
-cpus = multiprocessing.cpu_count()
-if n > 1000*cpus:
-    a = int(n/cpus+.5)  # one less than # of CPUs
+cpus = multiprocessing.cpu_count() 
+thrd = cpus - 1
+if n > 1000*thrd:
+    a = n//cpus + 1
     nums = []
     k = n
     while k - a > 1:
@@ -44,10 +45,11 @@ if n > 1000*cpus:
         k = s-1
     print(f"{nums=} ")  # Show the sets 
     start_time = time.time() 
-    p =  multiprocessing.Pool(processes=(7)) # get some threads for our pool
+    p =  multiprocessing.Pool(processes=(thrd)) # get some threads for our pool
     results=p.map(prime_range, nums) # one thread per arctan(1/xxxx)
     p.close()
     p.join()  # wait for them to finish
+    print(f"{results=}")
     c = sum(results)
 else:
     start_time = time.time()
