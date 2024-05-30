@@ -48,10 +48,10 @@ if n > sieve_size:
     print(f"{nums=} ")  # Show the sets 
     start_time = time.time() 
     print(f"{thrds=}  {chunk=} ") 
-    p =  multiprocessing.Pool(processes=(thrds)) # get some threads for our pool
-    results=p.map(prime_range, nums) # one thread per chunk
-    p.close()
-    p.join()  # wait for them to finish
+    pool =  multiprocessing.Pool(processes=(thrds)) # get some threads for our pool
+    results=pool.map(prime_range, nums) # one thread per chunk
+    pool.close()
+    pool.join()  # wait for them to finish
     print(f"{results=}")
     c = sum(results)
 else:
