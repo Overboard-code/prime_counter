@@ -14,7 +14,7 @@ def prime_range(ste):
     y = ste[0]
     # Find number of primes from 1 to x
     count = 0
-    if y < 5:
+    if y < 5 and x >= 5:
         y = 5
         count = 2
     for i in range(y,x,6):
@@ -23,14 +23,20 @@ def prime_range(ste):
         if is_prime(i+2):
             count += 1
     return count
+sieve_size = 1000000
+# simple sieve of primes to 1,000,000
+p = bytearray([0] * sieve_size)
+p[2] = 1
+p[3] = 1 
+for i in range(5,sieve_size+1,6): 
+    if is_prime(i):   p[i] = 1
+    if is_prime(i+2): p[i+2] = 1
 
-# simple sieve primes to 10000
-p = [1 if is_prime(i) else 0 for i in range(10001) ]
 
 n = int(input("Count primes to: >"))
 thrds = multiprocessing.cpu_count() - 1
 chunk = n//(thrds+1)   # one chunk per thread
-if n > len(p):
+if n > sieve_size:
     nums = []
     end = n
     while end - chunk > 1:
@@ -41,6 +47,7 @@ if n > len(p):
         end = strt-1  # Set new end one less than this start
     print(f"{nums=} ")  # Show the sets 
     start_time = time.time() 
+    print(f"{thrds=}  {chunk=} ") 
     p =  multiprocessing.Pool(processes=(thrds)) # get some threads for our pool
     results=p.map(prime_range, nums) # one thread per chunk
     p.close()
