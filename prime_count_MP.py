@@ -5,22 +5,26 @@ import sys,multiprocessing,time
 #----------------------------------------------#
 #  uses the 6k plus minus one rule to split a 
 #  list of numbers into groups equal to number
-#  of CPUs minus 1.  Then start a task on each range
-#   to count all found primes. 
+#  of CPUs.  Then start a process on each range
+#  to count all found primes. 
 #----------------------------------------------#
 
 def prime_range(ste): 
+    # code requires ste[0] to be 6k-1 
     x = ste[1]
     y = ste[0]
-    # Find number of primes from 1 to x
+    # Find number of primes from y to x
     count = 0
     if y < 5 and x >= 5:
         y = 5
         count = 2
-    for i in range(y,x,6):
-        if is_prime(i):
+    if (((y+1)//6)*6)-1 != y:
+        print(f"{y:,} is not in form 6k-1") 
+        raise Exception("Start is not 6k-1 number. Failing")
+    for k6 in range(y,x,6):  # for each 6k-1 
+        if is_prime(k6):    # 6k-1
             count += 1
-        if is_prime(i+2):
+        if is_prime(k6+2):   # 6k+1
             count += 1
     return count
     
@@ -33,27 +37,26 @@ for i in range(5,sieve_size+1,6):
     if is_prime(i):   p[i] = 1
     if is_prime(i+2): p[i+2] = 1
 
-
 n = int(input("Count primes to: >"))
-thrds = multiprocessing.cpu_count() - 1
-chunk = n//(thrds+1)   # one chunk per thread
+CPUs = multiprocessing.cpu_count()  
+chunk = n//(CPUs)   # one chunk per CPU thread
 if n > sieve_size:
     nums = []
     end = n
-    while end - chunk > 1:
+    while end > chunk:
         strt = end-chunk
-        strt = strt-strt%6-1  # Split at 6k-1 boundry else range fails
-        if strt < chunk: strt = 1  # set bottom to all that's left
+        strt = strt-strt%6-1  # Split at 6k-1 boundry 
         nums = [[strt,end]] + nums[:]
-        end = strt-1  # Set new end one less than this start
+        end = strt-1  # Set new end one less than previous start
+    nums = [[1,end]] + nums[:]  # last chunk 
     print(f"{nums=} ")  # Show the sets 
     start_time = time.time() 
-    print(f"{thrds=}  {chunk=} ") 
-    pool =  multiprocessing.Pool(processes=(thrds)) # get some threads for our pool
+    print(f"{CPUs=}  {chunk=} ") 
+    pool =  multiprocessing.Pool(processes=(CPUs)) # get some threads for our pool
     results=pool.map(prime_range, nums) # one thread per chunk
     pool.close()
     pool.join()  # wait for them to finish
-    print(f"{results=}")
+    print(f"results per thread: {results=}")
     c = sum(results)
 else:
     start_time = time.time()
