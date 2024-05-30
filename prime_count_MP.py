@@ -23,6 +23,7 @@ def prime_range(ste):
         if is_prime(i+2):
             count += 1
     return count
+    
 sieve_size = 1000000
 # simple sieve of primes to 1,000,000
 p = bytearray([0] * sieve_size)
