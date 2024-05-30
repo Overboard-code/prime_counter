@@ -2,47 +2,18 @@ from gmpy2 import is_prime
 from datetime import timedelta
 import sys,multiprocessing,time
 
-def k6_is_prime(n):  
-    if (n <= 1):  
-        return False      
-    if (n <= 3):  
-        return True        
-    if (n%2 == 0 or n%3 == 0):  
-        return False      
-    limit = int(n**.5)+1
-    for i in range(5,limit,6): 
-        if (n%i == 0 or n%(i+2) == 0):  
-            return False          
-    return True  
-
-def prime_near(n,prev=False): 
-    s = n-n%6+5  # get next 6k-1
-    k6,stop = (-6,1) if prev else (6,n+70*6)  
-    if prev:
-        k6 = -6
-        stop = 1
-        s-=6
-    for i in range(s,stop,k6):
-        #print(f"Checking {i} and {i+2}")
-        if prev:
-            if is_prime(i+2): 
-                return i+2
-            if is_prime(i): 
-                return i
-        else:
-            if is_prime(i): 
-                return i
-            if is_prime(i+2): 
-                return i+2
-    return -1
-    
+#----------------------------------------------#
+#  uses the 6k plus minus one rule to split a 
+#  list of numbers into groups equal to number
+#  of CPUs minus 1.  Then start a task on each range
+#   to count all found primes. 
+#----------------------------------------------#
 
 def prime_range(ste): 
     x = ste[1]
     y = ste[0]
     # Find number of primes from 1 to x
     if x <=1000:
-       
         count = sum(p[y:x+1])
         return count
     count = 0
@@ -67,7 +38,7 @@ if n > 1000*cpus:
     k = n
     while k - a > 1:
         s = k-a
-        s = s-s%6-1
+        s = s-s%6-1  # Split at 6k-1 boundry 
         if s<a: s =1
         nums.append([s,k])
         k = s-1
@@ -84,5 +55,3 @@ else:
 print(f"From 1 to {n:,} there are {c:,}  primes") 
 
 print(f" Search took {str(timedelta(seconds=time.time()-start_time))} ")
-
-print(f"Next prime from {n} is {prime_near(n)}\nPrevios one is {prime_near(n,prev=True)} ") 
