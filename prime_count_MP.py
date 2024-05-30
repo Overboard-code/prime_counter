@@ -13,13 +13,13 @@ def prime_range(ste):
     x = ste[1]
     y = ste[0]
     # Find number of primes from 1 to x
-    if x <=1000:
+    if x <=len(p):
         count = sum(p[y:x+1])
         return count
     count = 0
     if y < 5:
-        count = 2
         y = 5
+        count = 2
     for i in range(y,x,6):
         if is_prime(i):
             count += 1
@@ -27,26 +27,26 @@ def prime_range(ste):
             count += 1
     return count
 
-# simple sieve primes to 1000
-p = [1 if is_prime(i) else 0 for i in range(1,1001) ]
+# simple sieve primes to 10000
+p = [1 if is_prime(i) else 0 for i in range(1,10001) ]
 
 n = int(input("Count primes to: >"))
-cpus = multiprocessing.cpu_count() 
-thrd = cpus - 1
-if n > 1000*thrd:
-    a = n//cpus + 1
+thrds = multiprocessing.cpu_count() - 1
+if n > len(p)*thrds:
+    chunk = n//(thrds+1)   # one chunk per thread
     nums = []
-    k = n
-    while k - a > 1:
-        s = k-a
-        s = s-s%6-1  # Split at 6k-1 boundry 
-        if s<a: s =1
-        nums.append([s,k])
-        k = s-1
+    end = n
+    while end - chunk > 1:
+        strt = end-chunk
+        strt = strt-strt%6-1  # Split at 6k-1 boundry else range fails
+        if strt < chunk: strt = 1  # set bottom to all that's left
+        nums = [[strt,end]] + nums[:]
+        end = strt-1  # Set new end one less than this start
     print(f"{nums=} ")  # Show the sets 
     start_time = time.time() 
-    p =  multiprocessing.Pool(processes=(thrd)) # get some threads for our pool
-    results=p.map(prime_range, nums) # one thread per arctan(1/xxxx)
+    print(f"{thrds=}  {chunk=} ") 
+    p =  multiprocessing.Pool(processes=(thrds)) # get some threads for our pool
+    results=p.map(prime_range, nums) # one thread per chunk
     p.close()
     p.join()  # wait for them to finish
     print(f"{results=}")
