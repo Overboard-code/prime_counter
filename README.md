@@ -26,23 +26,30 @@ From 1 to 1,000,000,000 there are 50,847,534  primes
 ```
 # prime_counter_sieve
 
-This code creates a 100 megabyte bytarray() with a 1 and 0 sieve for each prime.  it then writes it to a file called ./primes.bin.  If the file is there the next time it reads it.  Then we just do a sum() to find the prime count, as long as it's less than 100 million.  
+This code creates a numpy byte array of the same size as the number.  Then makes a with a 1 and 0 sieve for each prime.     Then we just do an np.sum() to find the prime count.  
 
-If it is larger, things slow down.  First we count all the primes in the sieve.  Then we find the nearest 6k-1 starting point and start counting primes by sixes.  This can take a while.  For 123 million it is still faster than the MP method. 
-
-If the number is around 100 million it is much faster than the multiproccesing code.  If much larger it runs several times slower. 
+If the number is less than 10 billion it is much faster than the multiproccesing code.  If much larger it runs slower. 
 
 here is a run to 123,456,789 like above:
 ```
 $ python prime_count_sieve.py 
+Creating new sieve of 100,000,000 primes.
+ Make sieve for 100,000,000 took 0:00:00.468188 
 Count primes to: >123456789
+Creating new sieve of 123,456,789 primes.
+ Make sieve for 123,456,789 took 0:00:00.587500 
 From 1 to 123,456,789 there are 7,027,260  primes
- Search took 0:00:06.088727 
+ Search took 0:00:00.648750 
 ```
-Here is to 1 billion (3 times slower):
+Here is to 1 billion (5 seconds):
 ```
 $ python prime_count_sieve.py 
+Creating new sieve of 100,000,000 primes.
+ Make sieve for 100,000,000 took 0:00:00.472750 
 Count primes to: >1000000000
+Creating new sieve of 1,000,000,000 primes.
+ Make sieve for 1,000,000,000 took 0:00:05.326424 
 From 1 to 1,000,000,000 there are 50,847,534  primes
- Search took 0:03:27.335061
+ Search took 0:00:05.812908 
+
 ```
