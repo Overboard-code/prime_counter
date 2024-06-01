@@ -1,35 +1,49 @@
-from gmpy2 import is_prime
 from datetime import timedelta
 import sys,time,os
-
+import numpy as np
+    
+def get_primes(x,start=0): 
+    return [i+start for i in range(len(x)) if x[i]]
+  
+def isPrime(x,n): 
+    if n > len(x): 
+        print(f"{n:,} too large max is {len(p):,}") 
+        return 
+    return x[n] == 1
+    
+def make_sieve(size): 
+    sieve_time = time.time() 
+    print(f"Creating new sieve of {size:,} primes.")
+    limit = int(1 + size**0.5)+2
+    p = np.ones(size,dtype=np.int8)
+    p[0] = p[1] = 0
+    s = p[4::2]
+    s[:] = 0   # clear 4,6,8,10
+    s = p[9::3]
+    s[:] = 0   # clear 9,12,15...
+    for i in range(5,limit,6):
+        if p[i]:
+            s = p[3*i::2*i]  # Get a view 
+            s[:] = 0         # Clear it
+        if p[i+2]:
+            h = i+2
+            s = p[3*h::2*h]  # Get a view 
+            s[:] = 0         # Clear it
+    print(f" Make sieve for {len(p):,} took {str(timedelta(seconds=time.time()-sieve_time))} ")
+    return p   
+    
 sieve_size = 100000000
-strt = sieve_size - sieve_size%6 -1
-file_path = "./primes.bin"
-if os.path.isfile(file_path):
-    fh = open(file_path, 'rb')
-    p = bytearray(fh.read())
-    sieve_size = len(p) 
-else:  # Create a big bin file with the sieve 
-    # create simple sieve of primes to 100,000,000
-    p = bytearray([0] * sieve_size)
-    p[2] = 1
-    p[3] = 1 
-    for i in range(5,sieve_size+1,6): 
-        if is_prime(i):   p[i] = 1
-        if is_prime(i+2): p[i+2] = 1
-    with open(file_path, "wb") as file:
-        file.write(p)
-strt = sieve_size - sieve_size%6 -1
+p = make_sieve(sieve_size)
 n = int(input("Count primes to: >"))
 start_time = time.time() 
 c=0
-if n < sieve_size:
-    c =  sum(p[1:n+1])
+if n <= sieve_size:
+    c =  np.sum(p[1:n+1])
 else:
-    c = sum(p) 
-    for i in range(strt,n+1,6):  # just 6k±1
-        if is_prime(i):   c+=1 # 6k-1
-        if is_prime(i+2): c+=1 # 6k+1
+    p = None
+    del p
+    p = make_sieve(n)
+    c =  np.sum(p[1:n+1])
          
 print(f"From 1 to {n:,} there are {c:,}  primes") 
 
