@@ -30,7 +30,7 @@ This code creates a numpy byte array of the same size as the number.  Then makes
 
 If the number is less than 10 billion it is much faster than the multiproccesing code.  If much larger it runs slower. 
 
-here is a run to 123,456,789 like above:
+here is a run to 123,456,789 like above, but way faster:
 ```
 $ python prime_count_sieve.py 
 Creating new sieve of 100,000,000 primes.
